@@ -1,0 +1,195 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* custom css for the Display data page */
+/* ===== PAGE WRAPPER ===== */
+.page-wrapper {
+  padding: 16px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* ===== FIXED SEARCH BAR ===== */
+.data-header {
+  position: fixed; /* 🔥 FIXED, NOT STICKY */
+  top: 60px; /* height of navbar */
+  left: 0;
+  right: 0;
+  z-index: 1020;
+  background: #ffffff;
+  padding: 12px 16px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* GRID */
+.header-grid {
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+}
+
+/* SEARCH */
+.search-input {
+  width: 100%;
+  min-width: 220px;
+}
+
+/* ===== TABLE OFFSET (IMPORTANT) ===== */
+.table-container {
+  margin-top: 90px; /* space for fixed search bar */
+  overflow-x: auto;
+}
+
+/* TABLE CELLS */
+.table th,
+.table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* LONG TEXT */
+.break-text {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  max-width: 260px;
+}
+
+.address {
+  overflow: scroll;
+}
+
+.address ::-webkit-scrollbar {
+  display: none;
+  -ms-overflow-style: none;
+}
+
+/* ===== PAGINATION ===== */
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px 0;
+  flex-wrap: wrap;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 992px) {
+  .header-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header-grid button {
+    width: 100%;
+  }
+
+  .table-container {
+    margin-top: 140px;
+  }
+
+  .break-text {
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 576px) {
+  .table-container {
+    margin-top: 170px;
+  }
+
+  .break-text {
+    max-width: 140px;
+  }
+}
+
+/* Custom css for navbar */
+
+/* NAVBAR FIX */
+.main-navbar {
+  height: 60px;
+  padding: 0 16px;
+  z-index: 1030;
+}
+
+/* BRAND */
+.navbar-brand {
+  font-weight: 600;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+/* NAV LINKS */
+.navbar-nav .nav-link {
+  padding: 8px 14px;
+  font-size: 15px;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+  margin-left: 12px;
+}
+
+/* MOBILE VIEW */
+@media (max-width: 991px) {
+  .main-navbar {
+    height: auto;
+    padding: 8px 12px;
+  }
+
+  .navbar-nav {
+    text-align: center;
+    padding-top: 10px;
+  }
+
+  .navbar-nav .nav-item {
+    margin-bottom: 8px;
+  }
+
+  .logout-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* PAGE OFFSET FOR FIXED NAVBAR */
+.page-content {
+  padding-top: 70px;
+}
