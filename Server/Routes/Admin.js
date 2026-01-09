@@ -6,7 +6,6 @@ router.post("/add", async (req, res) => {
 
   try {
     const existingAdmin = await Admin.findOne({ email });
-    console.log(existingAdmin);
 
     if (existingAdmin) {
       return res.status(400).json({ error: "User is already registered" });
@@ -51,10 +50,91 @@ router.post("/login", async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "Login success", user: { name: result.email } });
+      .json({
+        message: "Login success",
+        user: {
+          name: result.email,
+          isActive: result.isActive,
+          isSuperAdmin: result.isSuperAdmin,
+        },
+      });
   } catch (error) {
     console.error("Loggin error : ", err);
     res.status(500).json({ error: "Server errror during login" });
+  }
+});
+
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    const user = await Admin.findByIdAndDelete(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.put("/update/:id", async (req, res) => {
+  try {
+    const { email, password, isActive } = req.body;
+
+    const user = await Admin.findByIdAndUpdate(
+      req.params.id,
+      { email, password, isActive },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.patch("/status/:id", async (req, res) => {
+  try {
+    const user = await Admin.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    res.status(200).json({
+      message: "User status updated",
+      isActive: user.isActive,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const user = await Admin.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

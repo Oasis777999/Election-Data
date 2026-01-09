@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { saveAs } from "file-saver";
 import api from "../apis/api";
-import { Link } from "react-router-dom";
 
 export const DisplayData = () => {
   const [tableData, setTableData] = useState([]);
@@ -11,6 +10,9 @@ export const DisplayData = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const isLogin = localStorage.getItem("user");
+  const user = isLogin ? JSON.parse(isLogin) : null;
 
   const getData = async () => {
     try {
@@ -61,14 +63,14 @@ export const DisplayData = () => {
   }, [page, searchQuery]);
 
   // Disable Right Click
-    useEffect(()=>{
-      const disableRightClick = (e)=>e.preventDefault();
-      document.addEventListener("contextmenu", disableRightClick);
+  useEffect(()=>{
+    const disableRightClick = (e)=>e.preventDefault();
+    document.addEventListener("contextmenu", disableRightClick);
 
-      return ()=>{
-          document.removeEventListener("contextmenu", disableRightClick);
-      }
-    })
+    return ()=>{
+        document.removeEventListener("contextmenu", disableRightClick);
+    }
+  })
 
   return (
     <div className="page-wrapper">
@@ -87,14 +89,18 @@ export const DisplayData = () => {
             }}
           />
 
-          <button onClick={downloadExcel} className="btn btn-outline-success">
-            Download
-          </button>
+          {user?.isSuperAdmin && (
+            <button onClick={downloadExcel} className="btn btn-outline-success">
+              Download
+            </button>
+          )}
         </div>
       </div>
 
       {/* TABLE */}
-      <div className="table-container">
+      <div
+        className="table-container"
+      >
         <table className="table table-bordered table-striped table-hover">
           <thead className="table-primary text-center">
             <tr>

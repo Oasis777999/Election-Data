@@ -1,11 +1,13 @@
 import * as XLSX from "xlsx";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../apis/api";
 
 export const UploadExel = () => {
   const [agentsFromExcel, setAgentsFromExcel] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleExcelUpload = async (e) => {
     const file = e.target.files[0];
@@ -46,6 +48,7 @@ export const UploadExel = () => {
         }
       }
       alert("All Volunteers uploaded successfully!");
+      navigate("/users")
     } catch (err) {
       console.error("Upload failed:", err);
       alert("Error uploading Volunteers, Please check excel sheet formate!");

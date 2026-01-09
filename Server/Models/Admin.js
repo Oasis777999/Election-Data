@@ -11,6 +11,10 @@ const adminSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isActive: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("admin", adminSchema);

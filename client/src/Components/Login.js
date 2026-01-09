@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../apis/api";
-import logo from "../Assets/image.png"
+import logo from "../Assets/image.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,12 +13,15 @@ const Login = () => {
     try {
       const response = await api.post("/admin/login", { email, password });
 
-      console.log(response);
-
       const result = response.data;
 
-      localStorage.setItem("user", JSON.stringify(result.user));
-      navigate("/data");
+      if (result?.user?.isActive === true) {
+        localStorage.setItem("user", JSON.stringify(result.user));
+       navigate("/data", { replace: true });
+      } else {
+        alert("Your account is inactive. Please contact admin.");
+        navigate("/login");
+      }
     } catch (error) {
       console.error("Login failed:", error);
       alert(error.response?.data?.error || "Login failed. Please try again.");
@@ -39,18 +42,16 @@ const Login = () => {
             width="100"
             className="img-fluid bg-lightBlue"
           />
-          <h3 className="fw-bold text-danger mt-2 bg-lightBlue">
+          <h3 className="fw-bold text-primary mt-2 bg-lightBlue">
             Welcome Back
           </h3>
           <p className="text-muted small bg-lightBlue">Login to your account</p>
         </div>
 
         <div className="mb-3 bg-white">
-          <label className="form-label fw-semibold bg-white">
-            Email
-          </label>
+          <label className="form-label fw-semibold bg-white">Email</label>
           <input
-            type="tel"
+            type="email"
             className="form-control form-control-lg"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -80,12 +81,11 @@ const Login = () => {
         <div className="text-center bg-white">
           <small className="text-muted bg-white">
             Trouble logging in? <br />
-            <span className="fw-semibold text-primary bg-white">
+            <span className="fw-semibold text-danger fw-bold bg-white">
               Contact support: 9999999999
             </span>
           </small>
         </div>
-
       </div>
     </div>
   );

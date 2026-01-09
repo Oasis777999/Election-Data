@@ -1,18 +1,48 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { Collapse } from "bootstrap";
 
 function App() {
   const navigate = useNavigate();
+  const collapseRef = useRef(null);
+
   const isLogin = localStorage.getItem("user");
+  const user = isLogin ? JSON.parse(isLogin) : null;
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    closeNavbar();
+    navigate("/login", { replace: true });
   };
 
-  if (!isLogin) return null;
+  // 🔹 Close navbar programmatically
+  const closeNavbar = () => {
+    if (collapseRef.current) {
+      const bsCollapse =
+        Collapse.getInstance(collapseRef.current) ||
+        new Collapse(collapseRef.current, { toggle: false });
 
-  // Navbar
+      bsCollapse.hide();
+    }
+  };
+
+  // 🔹 Close navbar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        collapseRef.current &&
+        !collapseRef.current.contains(event.target) &&
+        !event.target.closest(".navbar-toggler")
+      ) {
+        closeNavbar();
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  if (!isLogin) return navigate("/login");
 
   return (
     <>
@@ -35,25 +65,45 @@ function App() {
           </button>
 
           {/* Links */}
-          <div className="collapse navbar-collapse" id="navbarNav">
+          <div
+            className="collapse navbar-collapse"
+            id="navbarNav"
+            ref={collapseRef}
+          >
             <ul className="navbar-nav ms-auto align-items-lg-center">
-              <li className="nav-item">
-                <NavLink className="nav-link" to="/data">
-                  See Data
-                </NavLink>
-              </li>   
+              {user?.isSuperAdmin && (
+                <>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link"
+                      to="/data"
+                      onClick={closeNavbar}
+                    >
+                      See Data
+                    </NavLink>
+                  </li>
 
-              <li className="nav-item">
-                <NavLink className="nav-link" to="/data">
-                  Add User
-                </NavLink>
-              </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link"
+                      to="/users"
+                      onClick={closeNavbar}
+                    >
+                      Add User
+                    </NavLink>
+                  </li>
 
-              <li className="nav-item">
-                <NavLink className="nav-link" to="/bulk-upload">
-                  Bulk Upload
-                </NavLink>
-              </li>
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link"
+                      to="/bulk-upload"
+                      onClick={closeNavbar}
+                    >
+                      Bulk Upload
+                    </NavLink>
+                  </li>
+                </>
+              )}
 
               <li className="nav-item">
                 <button
