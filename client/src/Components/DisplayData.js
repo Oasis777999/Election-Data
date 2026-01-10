@@ -6,7 +6,7 @@ export const DisplayData = () => {
   const [tableData, setTableData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const limit = 50;
+  const [limit, setLimit] = useState(50);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,33 +34,38 @@ export const DisplayData = () => {
     }
   };
 
-  const downloadExcel = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (searchQuery) params.append("search", searchQuery);
+const downloadExcel = async () => {
+  try {
+    setLoading(true);
 
-      const url = `/user/export?${params.toString()}`;
-
-      const response = await api.get(url, {
-        responseType: "blob",
-      });
-
-      const blob = new Blob([response.data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-
-      saveAs(blob, "filtered-data.xlsx");
-    } catch (error) {
-      console.error("Error downloading Exel : ", error);
-    } finally {
-      setLoading(false);
+    const params = {};
+    if (searchQuery?.trim()) {
+      params.search = searchQuery.trim();
     }
-  };
+
+    const response = await api.get("/user/export", {
+      params,
+      responseType: "blob",
+      timeout: 60000, // ⏱️ important for large files
+    });
+
+    saveAs(response.data, "filtered-data.xlsx");
+  } catch (error) {
+    if (error.response) {
+      console.error("Server error:", error.response.data);
+    } else if (error.code === "ECONNABORTED") {
+      console.error("Download timeout");
+    } else {
+      console.error("Excel download error:", error);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     getData();
-  }, [page, searchQuery]);
+  }, [page, searchQuery, limit]);
 
   // Disable Right Click
   useEffect(()=>{
@@ -73,7 +78,7 @@ export const DisplayData = () => {
   })
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper no-select">
       {/* HEADER */}
       <div className="data-header">
         <div className="header-grid">
@@ -90,17 +95,35 @@ export const DisplayData = () => {
           />
 
           {user?.isSuperAdmin && (
-            <button onClick={downloadExcel} className="btn btn-outline-success">
-              Download
+            <button
+              onClick={downloadExcel}
+              className="btn btn-outline-success"
+              disabled={loading}
+            >
+              {loading ? "Downloading..." : "Download"}
             </button>
           )}
+        </div>
+        <div className="d-flex justify-content-end align-items-center gap-2 my-3">
+          <label className="fw-semibold mb-0">Show</label>
+
+          <select
+            className="form-select form-select-sm w-auto"
+            value={limit}
+            onChange={(e) => setLimit(Number(e.target.value))}
+          >
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+            <option value={200}>200</option>
+            <option value={500}>500</option>
+            <option value={1000}>1000</option>
+          </select>
+
         </div>
       </div>
 
       {/* TABLE */}
-      <div
-        className="table-container"
-      >
+      <div className="table-container">
         <table className="table table-bordered table-striped table-hover">
           <thead className="table-primary text-center">
             <tr>

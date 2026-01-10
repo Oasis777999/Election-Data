@@ -82,31 +82,16 @@ router.get("/export", async (req, res) => {
     const { search = "" } = req.query;
 
     const filter = {};
-    if (search) {
+    if (search.trim()) {
+      const regex = new RegExp(search.trim(), "i");
       filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { address: { $regex: search, $options: "i" } },
-        { phone: { $regex: search, $options: "i" } },
-        { alternatePhone: { $regex: search, $options: "i" } },
-        { pincode: { $regex: search, $options: "i" } },
+        { name: regex },
+        { address: regex },
+        { phone: regex },
+        { alternatePhone: regex },
+        { pincode: regex },
       ];
     }
-
-    const data = await User.find(filter);
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Filtered Data");
-
-    worksheet.columns = [
-      { header: "Name", key: "name", width: 30 },
-      { header: "Email", key: "email", width: 20 },
-      { header: "Phone", key: "phone", width: 20 },
-      { header: "Alternate Phone", key: "alternatePhone", width: 20 },
-      { header: "Address", key: "address", width: 30 },
-      { header: "Pincode", key: "pincode", width: 15 },
-    ];
-
-    data.forEach((item) => worksheet.addRow(item));
 
     res.setHeader(
       "Content-Type",
@@ -116,12 +101,37 @@ router.get("/export", async (req, res) => {
       "Content-Disposition",
       'attachment; filename="filtered-data.xlsx"'
     );
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
 
-    await workbook.xlsx.write(res);
-    res.end();
+    const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({
+      stream: res,
+    });
+
+    const worksheet = workbook.addWorksheet("Filtered Data");
+
+    worksheet.columns = [
+      { header: "Name", key: "name", width: 30 },
+      { header: "Email", key: "email", width: 25 },
+      { header: "Phone", key: "phone", width: 20 },
+      { header: "Alternate Phone", key: "alternatePhone", width: 20 },
+      { header: "Address", key: "address", width: 30 },
+      { header: "Pincode", key: "pincode", width: 15 },
+    ];
+
+    const cursor = User.find(filter).lean().cursor();
+
+    for await (const doc of cursor) {
+      worksheet.addRow(doc).commit();
+    }
+
+    worksheet.commit();
+    await workbook.commit();
   } catch (error) {
     console.error("Export error:", error);
-    res.status(500).json({ error: "Failed to export data" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Failed to export data" });
+    }
   }
 });
 

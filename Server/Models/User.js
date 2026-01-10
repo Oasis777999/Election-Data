@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 userSchema = new mongoose.Schema({
     phone : {
-        type:String
+        type:String,
     },
     alternatePhone:{
         type:String

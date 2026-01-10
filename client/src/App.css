@@ -193,3 +193,10 @@
 .page-content {
   padding-top: 70px;
 }
+
+/* Disable the copy data on screen */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
